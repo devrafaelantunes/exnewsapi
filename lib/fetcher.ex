@@ -25,6 +25,47 @@ defmodule ExNews.Fetcher do
     {:ok, %{opts: opts}, {:continue, :initial_request}}
   end
 
+  def handle_continue(:initial_request, state) do
+    if get_config(state.opts, :fetch_on_startup) do
+      fetch_stories_wrapper()
+    else
+      Logger.debug("Skipping initial fetching because of `fetch_on_startup` flag.")
+    end
+
+    {:noreply, state}
+  end
+
+  def handle_info(:fetch_hn, state) do
+    Process.send_after(self(), :fetch_hn, get_interval(state.opts))
+
+    result = fetch_stories_wrapper()
+
+    broadcast_new_stories(result)
+
+    {:noreply, state}
+  end
+
+  @spec fetch_stories_wrapper() ::
+          [State.story()]
+  defp fetch_stories_wrapper() do
+    task =
+      Task.Supervisor.async_nolink(ExNews.TaskSupervisor, fn ->
+        fetch_stories()
+      end)
+
+    case Task.yield(task, @timeout) || Task.shutdown(task) do
+      {:ok, result} ->
+        result
+
+      {:exit, _} ->
+        []
+
+      nil ->
+        Logger.warn("Failed to get a result in #{@timeout}")
+        []
+    end
+  end
+
   @spec broadcast_new_stories([State.story()]) :: term
   defp broadcast_new_stories([]), do: :noop
 
@@ -72,4 +113,16 @@ defmodule ExNews.Fetcher do
     |> Enum.reject(&is_nil/1)
     |> State.write()
   end
+
+  @spec get_config(map, atom, term) :: term
+  defp get_config(opts, key, default \\ true) do
+    case opts[key] do
+      nil -> default
+      v -> v
+    end
+  end
+
+  @spec get_interval(map) :: integer
+  defp get_interval(opts),
+    do: get_config(opts, :interval, @interval)
 end
