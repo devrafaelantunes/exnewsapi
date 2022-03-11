@@ -32,23 +32,29 @@ defmodule ExNews.Webserver.WebSocketTracker do
 
   @spec get_connected_pids() :: [pid()]
   def get_connected_pids do
+    # Fetch the current PIDS stored on the ETS Table
     :ets.lookup(@table_name, :ws_connections)
     |> Enum.map(fn {_, v} -> v end)
   end
 
   def init(_) do
+    # Starts the ETS table based on the `@table_name`
     :ets.new(@table_name, [:named_table, :bag, :protected, read_concurrency: true])
 
     {:ok, %{}}
   end
 
   def handle_call({:track, pid}, _from, state) do
+    # Adds the PID to the table upon connection
     :ets.insert(@table_name, {:ws_connections, pid})
 
     {:reply, :ok, state}
   end
 
   def handle_call({:kill, pid}, _from, state) do
+    # Deletes the PID to the table upon disconnection
+    # Smell: Find a better way to make the deletion. 
+    # Match_delete does not seem like the best option here
     :ets.match_delete(@table_name, {:ws_connections, pid})
     {:reply, :ok, state}
   end

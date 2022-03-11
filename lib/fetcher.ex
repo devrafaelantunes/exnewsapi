@@ -51,6 +51,7 @@ defmodule ExNews.Fetcher do
   end
 
   def init(opts) do
+    # Starts the initial 5 minute timer
     Process.send_after(self(), :fetch_hn, get_interval(opts))
 
     {:ok, %{opts: opts}, {:continue, :initial_request}}
@@ -67,10 +68,13 @@ defmodule ExNews.Fetcher do
   end
 
   def handle_info(:fetch_hn, state) do
+    # Keeps reactivacting the timer
     Process.send_after(self(), :fetch_hn, get_interval(state.opts))
 
+    # Fetch the results
     result = fetch_stories_wrapper()
 
+    # Broadcast the results to the connected WebSockets
     broadcast_new_stories(result)
 
     {:noreply, state}
@@ -103,6 +107,7 @@ defmodule ExNews.Fetcher do
   defp broadcast_new_stories(stories) do
     task =
       Task.Supervisor.async_nolink(ExNews.TaskSupervisor, fn ->
+        # Get the connected WebSockets' PID
         connected_ws_pids = ExNews.Webserver.WebSocketTracker.get_connected_pids()
 
         top50_stories_serialized = stories |> Jason.encode!()
@@ -119,6 +124,7 @@ defmodule ExNews.Fetcher do
   @spec fetch_stories() ::
           [State.story()]
   def fetch_stories() do
+    # Use the API module to make a request. It can also use Mox for tests
     {:ok, payload} = @api.get("/topstories.json?print=pretty")
     top50 = Enum.slice(payload, 0..49)
 
@@ -127,6 +133,7 @@ defmodule ExNews.Fetcher do
       fn item_id ->
         case @api.get("/item/#{item_id}.json?print=pretty") do
           {:ok, payload} ->
+            # Drop some useless info about the story
             Map.drop(payload, ["descendants", "kids", "time", "type", "text"])
 
           :error ->

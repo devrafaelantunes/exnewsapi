@@ -10,6 +10,7 @@ defmodule ExNews.Webserver.WebSocketHandler do
 
   alias ExNews.Webserver.WebSocketTracker
 
+  # Cowboy config opts
   @cowboy_opts %{
     idle_timeout: 61_000,
     max_frame_size: 1_000_000,
@@ -21,12 +22,15 @@ defmodule ExNews.Webserver.WebSocketHandler do
   end
 
   def websocket_init(%{req: _req}) do
+    # Start tracking the connected PID
     WebSocketTracker.track(self())
 
+    # Fetch the current top 50
     current_top50 =
       ExNews.State.lookup(1, 50)
       |> Jason.encode!()
 
+    # Send the current top 50 to the connected PID
     Process.send(self(), {:push, current_top50}, [])
     {:ok, %{}}
   end
@@ -40,6 +44,7 @@ defmodule ExNews.Webserver.WebSocketHandler do
   end
 
   def terminate(_reason, _req, _state) do
+    # Terminates the connection
     WebSocketTracker.kill(self())
   end
 end

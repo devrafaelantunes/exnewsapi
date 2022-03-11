@@ -7,10 +7,11 @@ defmodule ExNews.Application do
 
   def start(_type, _args) do
     children = [
+      # Starts cowboy with custom args
       cowboy_child_spec(),
       {Task.Supervisor, name: ExNews.TaskSupervisor},
 
-      # Starts the HackerNews Fetcher
+      # Starts the HackerNews Fetcher, State and WebSocketTracker
       fetcher_spec(),
       ExNews.State,
       ExNews.Webserver.WebSocketTracker

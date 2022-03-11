@@ -1,4 +1,15 @@
 defmodule ExNews.API do
+  @moduledoc """
+    ## Overview
+
+    This module is responsible for making the requests to the HN News' API.
+
+    ## How it works
+
+    It uses HTTPoison to make the HTTP Requests or Mox for tests.
+    It works with a customizable retry system. You can set up the `@max_attemps` variable to
+    define how many times the client will try to reach the HN API
+  """
   require Logger
 
   @base_url Application.get_env(:exnews, :hn_api_base_url)
@@ -29,7 +40,9 @@ defmodule ExNews.API do
           "Request against #{url} failed with status code #{status_code}. Trying again..."
         )
 
+        # Waits 250ms til the next request
         :timer.sleep(250)
+        # Creates a recursion
         get(url, attempts + 1)
     end
   end
