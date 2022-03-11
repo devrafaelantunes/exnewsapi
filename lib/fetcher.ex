@@ -18,7 +18,7 @@ defmodule ExNews.Fetcher do
   def start_link(opts \\ %{}) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
-  
+
   def init(opts) do
     Process.send_after(self(), :fetch_hn, get_interval(opts))
 

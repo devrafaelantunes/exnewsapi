@@ -15,7 +15,7 @@ defmodule ExNews.Webserver.Handler do
     items = ExNews.State.lookup(page, results_per_page)
     jsonfied_items = Jason.encode!(items)
 
-    {:ok, set_reply(request, jsonfied_items, 200), %{}}
+    {:ok, set_reply(request, jsonfied_items, 200), jsonfied_items}
   end
 
   def init(request, %{endpoint: :get_one_post}) do

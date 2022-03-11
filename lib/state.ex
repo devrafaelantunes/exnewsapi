@@ -19,11 +19,14 @@ defmodule ExNews.State do
   @spec lookup(page :: pos_integer, results_per_page :: pos_integer) ::
           [story]
   def lookup(page, results_per_page) do
-    [items: payload] = :ets.lookup(@table_name, :items)
+    case :ets.lookup(@table_name, :items) do
+      [] ->
+        []
 
-    range = ((page - 1) * results_per_page)..(page * results_per_page - 1)
-
-    Enum.slice(payload, range)
+      [items: payload] ->
+        range = ((page - 1) * results_per_page)..(page * results_per_page - 1)
+        Enum.slice(payload, range)
+    end
   end
 
   @spec single_lookup(story_id) ::
