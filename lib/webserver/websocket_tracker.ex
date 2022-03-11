@@ -10,6 +10,12 @@ defmodule ExNews.Webserver.WebSocketTracker do
     The WebSocketTracker gets the pid when the WebSocket first connects, then 
     it stores its value on an ETS table. Once the connection ends, the tracker 
     deletes the PID from the table.
+
+    ## Future improvements
+
+    The `:ets.match_delete` can be a possible botteneck in case we have thousands of 
+    active websockets connections. This happens because the function's query need to 
+    iterate over all the active connections to find the one that needs to be deleted. 
   """
 
   use GenServer
@@ -53,8 +59,6 @@ defmodule ExNews.Webserver.WebSocketTracker do
 
   def handle_call({:kill, pid}, _from, state) do
     # Deletes the PID to the table upon disconnection
-    # Smell: Find a better way to make the deletion. 
-    # Match_delete does not seem like the best option here
     :ets.match_delete(@table_name, {:ws_connections, pid})
     {:reply, :ok, state}
   end
