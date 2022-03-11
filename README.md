@@ -9,6 +9,9 @@ Lists the HN's current top 50 stories based on score.
 - `iex -S mix`
 - The application will listen to port `3000` and will serve `/posts/` `/post/:id` `/ws` endpoints.
 
+
+- `mix test` to run the tests
+
 ## How it works
 
 At start, the application will fetch the current top 50 stories by requesting it to the HN's API,
