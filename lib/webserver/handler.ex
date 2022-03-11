@@ -1,6 +1,20 @@
 defmodule ExNews.Webserver.Handler do
+  @moduledoc """
+    ## Overview
+
+    Uses cowboy to handles HTTP's requests. 
+
+    ## How it works
+
+    Returns the top 50 stories list based on the page and results per page. 
+    The user can also search for an individual story included on the list, based on its id.
+  """
+
   @type request :: map
 
+  @doc """
+    quais parametros e talz
+  """
   def init(request, %{endpoint: :get_all_posts}) do
     request = set_content_type(request)
 
@@ -18,6 +32,9 @@ defmodule ExNews.Webserver.Handler do
     {:ok, set_reply(request, jsonfied_items, 200), jsonfied_items}
   end
 
+  @doc """
+    quais parametros e talz
+  """
   def init(request, %{endpoint: :get_one_post}) do
     request = set_content_type(request)
 

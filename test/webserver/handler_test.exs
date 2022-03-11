@@ -1,8 +1,7 @@
-defmodule ExNews.Test.HandlerTest do
-  use ExUnit.Case, async: true
+defmodule ExNews.Webserver.HandlerTest do
+  use ExUnit.Case
 
   alias ExNews.Webserver.Handler
-
   alias ExNews.Test.{StateUtils}
   alias ExNews.{State}
 

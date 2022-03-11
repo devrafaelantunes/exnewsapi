@@ -1,7 +1,18 @@
 defmodule ExNews.Webserver.WebSocketTracker do
-  use GenServer
+  @moduledoc """
+    ## Overview
 
-  # Smell: ver se tem forma melhor de fazer esse tracking. Talvez algum Registry
+    This GenServer is used to track the connected WebSockets PID's via an ETS table.
+    Its goal is to broadcast the stories to all the connected PIDS.
+
+    ## How it works
+
+    The WebSocketTracker gets the pid when the WebSocket first connects, then 
+    it stores its value on an ETS table. Once the connection ends, the tracker 
+    deletes the PID from the table.
+  """
+
+  use GenServer
 
   @table_name :ws_tracker
 

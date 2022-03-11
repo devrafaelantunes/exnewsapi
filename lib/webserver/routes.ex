@@ -1,4 +1,10 @@
 defmodule ExNews.Webserver.Routes do
+  @moduledoc """
+    ## Overview
+
+    Exposes both HTTP and WebSockets endpoints using cowboy.
+  """
+
   alias ExNews.Webserver.{Handler, WebSocketHandler}
 
   @type routes ::

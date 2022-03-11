@@ -1,5 +1,5 @@
 defmodule ExNews.StateTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   alias ExNews.Test.{StateUtils}
   alias ExNews.{State}

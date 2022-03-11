@@ -1,4 +1,11 @@
 defmodule ExNews.Webserver.WebSocketHandler do
+  @moduledoc """
+    ## Overview
+
+    Uses cowboy to handle the WebSockets connections. It integrates with the WebSocketTracker module to
+    keep track and broadcast the stories' updates.
+  """
+
   @behaviour :cowboy_websocket
 
   alias ExNews.Webserver.WebSocketTracker
@@ -16,7 +23,6 @@ defmodule ExNews.Webserver.WebSocketHandler do
   def websocket_init(%{req: _req}) do
     WebSocketTracker.track(self())
 
-    # Todo handle erro caso Jason encode retorne error
     current_top50 =
       ExNews.State.lookup(1, 50)
       |> Jason.encode!()

@@ -1,15 +1,46 @@
 defmodule ExNews.Fetcher do
   @moduledoc """
+    ## Overview
 
+    This module is responsible for making HTTP requests to the HackerNews API using HTTPoison
+    to fetch the current top 50 stories. 
+
+    It is also responsible for broadcasting the stories to the connected WebSockets.
+
+    The GenServer is used to create a 5 minute timer, which works as the requests' interval.
+
+    ## How it works
+    
+    The module spawns an isolated process for each request it makes. 
+    All the individual stories are processed and fetched concurrently, based on the `@max_concurrency`. 
+    If the API is down, it will retry the request until reaches the max attemps defined in the API module.
+    If the retries do not work and an error still happens while fetching an individual story, 
+    it won't be recorded.  
+
+    Due to the isolation of each process, if any error happens the process will restart itself 
+    without interfering with the others. 
+
+    The children tasks are also supervised.
+
+    The module will only write the stories in memory if the request was sucessful.
+
+    As a trade-off, I chose to always make a request to fetch the current top 50 stories instead of
+    creating a cache system to check if the request was really necessary. I opted for this approach, 
+    based on the frequency the score updates.
+
+    ## Broadcasting to the connected WebSockets
+
+    The function `broadcast_new_stories` broadcasts the stories when they are updated. It gets the 
+    connected pids and sends a message to the Websocket Handler GenServer, broadcasting the stories.
   """
 
   use GenServer
   require Logger
   alias ExNews.{State}
 
-  # @interval 5 * 60_000
+  # 5 minutes interval
+  @interval 5 * 60_000
   @timeout 5_000
-  @interval 5_000
 
   @max_concurrency if Mix.env() == :test, do: 1, else: :erlang.system_info(:schedulers)
 

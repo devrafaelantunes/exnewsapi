@@ -16,7 +16,6 @@ defmodule ExNews.Application do
       ExNews.Webserver.WebSocketTracker
     ]
 
-    # TODO
     opts = [strategy: :one_for_one, name: ExNews.Supervisor]
 
     Supervisor.start_link(children, opts)

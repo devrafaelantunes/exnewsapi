@@ -1,6 +1,15 @@
 defmodule ExNews.State do
   @moduledoc """
+    ## Overview
 
+    The ExNews.State module works by using ETS to store the stories.
+    It can lookup stories based on its id and display pages based on 
+    the desired results per page.
+
+    ## Design decisions
+
+    I chose to use ETS over a GenServer to prevent bottlenecks from happening. 
+    Differently from the GenServer, ETS can write and read the state concurrently.
   """
 
   use GenServer
