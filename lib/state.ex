@@ -32,11 +32,15 @@ defmodule ExNews.State do
   @spec single_lookup(story_id) ::
           story | nil
   def single_lookup(id) do
-    [items: payload] = :ets.lookup(@table_name, :items)
+    case :ets.lookup(@table_name, :items) do
+      [] ->
+        []
 
-    Enum.find(payload, fn post ->
-      post["id"] == id
-    end)
+      [items: payload] ->
+        Enum.find(payload, fn post ->
+          post["id"] == id
+        end)
+    end
   end
 
   @spec write([story]) ::

@@ -37,11 +37,11 @@ defmodule ExNews.Webserver.Handler do
           {200, Jason.encode!(result)}
         end
 
-      {:ok, set_reply(request, response, status_code), %{}}
+      {:ok, set_reply(request, response, status_code), response}
     else
       response = "invalid post_id" |> Jason.encode!()
 
-      {:ok, set_reply(request, response, 400), %{}}
+      {:ok, set_reply(request, response, 400), response}
     end
   end
 

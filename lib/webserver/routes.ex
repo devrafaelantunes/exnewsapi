@@ -13,7 +13,7 @@ defmodule ExNews.Webserver.Routes do
     ]
   end
 
-  # Reinicia as rotas em tempo real sem precisar de CTLR C 
+  # Recompile the routes in runtime
   def recompile() do
     dispatch = :cowboy_router.compile([{:_, routes()}])
     :persistent_term.put(:exnews_dispatch, dispatch)
