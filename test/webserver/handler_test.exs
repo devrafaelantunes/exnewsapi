@@ -13,6 +13,7 @@ defmodule ExNews.Webserver.HandlerTest do
     :ok
   end
 
+  # Recreates a cowboy request to simulate it
   defp sample_http_request(qs, path, bindings) do
     %{
       bindings: bindings,
@@ -58,8 +59,10 @@ defmodule ExNews.Webserver.HandlerTest do
         %{"id" => 2}
       ]
 
+      # Write the entries
       State.write(entries)
 
+      # Simulates the request
       {:ok, _request, body} =
         Handler.init(sample_http_request(qs, path, bindings), %{endpoint: :get_all_posts})
 
